@@ -22,15 +22,12 @@ class ControllerClient{
 
     public function store(){
 
-    $validation = new Validation;
-   
-    //$validation->name('nom')->value($_POST['nom'])
-    extract($_POST);
-    $validation->name('nom')->value($nom)->pattern('alpha')->required()->max(30);
-   
+        $client = new ModelClient;
 
+        $insert = $client->insert($_POST);
 
-    if($validation->isSuccess()){
+        requirePage::redirectPage('client');
+
         $ville = new ModelVille;
         $insertVille = $ville->insert($_POST);
         $_POST['ville_id']=$insertVille;
@@ -38,17 +35,14 @@ class ControllerClient{
         $insertClient = $client->insert($_POST);
    
        requirePage::redirectPage('client');
-    }else{
-        $errors = $validation->displayErrors();
-        twig::render('client-create.php', ['errors'=>$errors, 'data'=>$_POST]);
-    }
-
 
     }
 
     public function show($id){
         $client = new ModelClient;
+        $ville = new ModelVille;
         $selectClient = $client->selectId($id);
+        $selectVille = $ville->select();
         twig::render('client-show.php', ['client' => $selectClient]);
     }
 
@@ -62,26 +56,13 @@ class ControllerClient{
 
     public function update(){
 
-        $validation = new Validation;
-        extract($_POST);
-        $validation->name('nom')->value($nom)->pattern('alpha')->required()->max(30);
-        $validation->name('courriel')->value($courriel)->pattern('email')->required()->max(50);
-
-        if($validation->isSuccess()){
             $client = new ModelClient;
             $update = $client->update($_POST);
             RequirePage::redirectPage('client/show/'.$_POST['id']);
-
-        }else{
-            $errors = $validation->displayErrors();
-            $ville = new ModelVille;
-            $selectVille = $ville->select("ville");
-            twig::render('client-edit.php', ['errors'=>$errors, 'client'=>$_POST, 'villes' => $selectVille]);
+            
         }
 
 
-
-    }
     public function delete(){
         $client = new ModelClient;
         $delete = $client->delete($_POST['id']);
